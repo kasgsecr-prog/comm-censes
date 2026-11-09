@@ -1,0 +1,29 @@
+{
+  "name": "comm-censes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kasgsecr-prog/comm-censes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kasgsecr-prog/comm-censes/issues"
+  },
+  "homepage": "https://github.com/kasgsecr-prog/comm-censes#readme",
+  "dependencies": {
+    "@neondatabase/serverless": "^1.2.0",
+    "helmet": "^8.3.0",
+    "zod": "^4.6.7"
+  }
+}
