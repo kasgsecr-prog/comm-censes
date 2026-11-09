@@ -113,7 +113,7 @@ export default async function handler(req, res) {
     const pgCode = typeof err?.code === "string" ? err.code : undefined;
     let status = 500;
     let code = "INTERNAL_ERROR";
-    let message = "Something went wrong. Please try again.";
+    let message = err.message; //"Something went wrong. Please try again.";
 
     if (pgCode === "23514") {
       status = 422;
