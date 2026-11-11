@@ -196,7 +196,9 @@ export const childSchema = z
     fullName: name("Full name"),
     yearOfBirth,
     gender,
-    // Required only when age >= 18; must be empty otherwise (checked in superRefine).
+    // Marital status, mobile and email: required only when age >= 18,
+    // must be empty otherwise (checked in superRefine).
+    maritalStatus: z.preprocess(emptyToUndefined, maritalStatus.optional()),
     mobile: z.preprocess(emptyToUndefined, mobile.optional()),
     email: z.preprocess(emptyToUndefined, email.optional()),
   })
@@ -292,6 +294,11 @@ export const submissionSchema = z
 
     d.children.forEach((c, i) => {
       if (isAdult(c.yearOfBirth, year)) {
+        if (!c.maritalStatus)
+          issue(
+            ["children", i, "maritalStatus"],
+            "Marital status is required for children aged 18 or over",
+          );
         if (!c.mobile)
           issue(
             ["children", i, "mobile"],
@@ -303,6 +310,11 @@ export const submissionSchema = z
             "Email is required for children aged 18 or over",
           );
       } else {
+        if (c.maritalStatus)
+          issue(
+            ["children", i, "maritalStatus"],
+            "Marital status must be empty for children under 18",
+          );
         if (c.mobile)
           issue(
             ["children", i, "mobile"],
