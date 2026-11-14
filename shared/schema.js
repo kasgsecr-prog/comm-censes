@@ -191,6 +191,26 @@ export const spouseSchema = z
   })
   .strict();
 
+export const divorceSchema = z
+  .object({
+    hasChildrenInCustody: z.boolean({
+      required_error: "Select Yes or No",
+      invalid_type_error: "Select Yes or No",
+    }),
+    numberOfChildren: z.preprocess(
+      toNumber,
+      z
+        .number({
+          required_error: "Select number of children",
+          invalid_type_error: "Select number of children",
+        })
+        .int("Select number of children")
+        .min(0, "Number of children cannot be negative")
+        .max(MAX_CHILDREN, `Maximum ${MAX_CHILDREN} children`),
+    ),
+  })
+  .strict();
+
 export const childSchema = z
   .object({
     fullName: name("Full name"),
@@ -241,6 +261,10 @@ export const submissionSchema = z
       (v) => (v === null ? undefined : v),
       spouseSchema.optional(),
     ),
+    divorce: z.preprocess(
+      (v) => (v === null ? undefined : v),
+      divorceSchema.optional(),
+    ),
     children: z
       .array(childSchema)
       .max(MAX_CHILDREN, `Maximum ${MAX_CHILDREN} children`)
@@ -253,6 +277,7 @@ export const submissionSchema = z
       ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
     const year = currentYearSG();
     const married = d.main.maritalStatus === "MARRIED";
+    const divorced = d.main.maritalStatus === "DIVORCED";
 
     if (married && !d.spouse)
       issue(
@@ -264,11 +289,45 @@ export const submissionSchema = z
         ["spouse"],
         "Spouse details are only accepted when marital status is Married",
       );
-    if (!married && d.children.length > 0)
+
+    if (divorced && !d.divorce)
+      issue(
+        ["divorce"],
+        "Custody details are required when marital status is Divorced",
+      );
+    if (!divorced && d.divorce)
+      issue(
+        ["divorce"],
+        "Custody details are only accepted when marital status is Divorced",
+      );
+    if (!married && !divorced && d.children.length > 0) {
       issue(
         ["children"],
-        "Children are only accepted when marital status is Married",
+        "Children are only accepted when marital status is Married or Divorced",
       );
+    }
+
+    if (d.divorce) {
+      const dv = d.divorce;
+      if (dv.hasChildrenInCustody === false && dv.numberOfChildren !== 0) {
+        issue(
+          ["divorce", "numberOfChildren"],
+          "Number of children must be 0 when no child is in your custody",
+        );
+      }
+      if (dv.hasChildrenInCustody === true && dv.numberOfChildren < 1) {
+        issue(
+          ["divorce", "numberOfChildren"],
+          "Enter at least 1 child when a child is in your custody",
+        );
+      }
+      if (dv.numberOfChildren !== d.children.length) {
+        issue(
+          ["divorce", "numberOfChildren"],
+          "Number of children does not match the children listed",
+        );
+      }
+    }
 
     if (d.spouse) {
       const s = d.spouse;
