@@ -5,7 +5,7 @@ import { z } from "zod";
 
 export const CONSENT_TEXT_VERSION = "2026-11-v1";
 export const GENDERS = ["MALE", "FEMALE"];
-export const MARITAL_STATUSES = ["SINGLE", "MARRIED", "DIVORCED", "WIDOWED"];
+export const MARITAL_STATUSES = ["SINGLE", "MARRIED", "DIVORCED"];
 export const ADULT_AGE = 18;
 export const MAX_CHILDREN = 10;
 
